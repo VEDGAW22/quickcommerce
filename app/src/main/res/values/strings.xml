@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Quick Commerce</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="profile_icon_desc">profile icone description</string>
+    <string name="delivery_in_">Delivery In</string>
+    <string name="_10_mins">10 Mins</string>
+    <string name="fasfits">fasfits</string>
+    <string name="login_or_sign_up">Login or Sign Up</string>
+    <string name="enter_a_phone_number">Enter a phone number</string>
+    <string name="currency_symbol">₹</string>
+</resources>

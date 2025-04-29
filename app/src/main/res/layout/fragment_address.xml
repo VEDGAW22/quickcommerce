@@ -1,0 +1,113 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Delivery Address"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:layout_margin="@dimen/_5sdp"/>
+        </LinearLayout>
+
+        <!-- Pincode Input -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <EditText
+                android:id="@+id/etPincode"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:hint="Enter Pincode"
+                android:inputType="number"
+                android:padding="8dp" />
+
+            <Button
+                android:id="@+id/btnCheckPincode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Check Pincode" />
+        </LinearLayout>
+
+        <!-- Current Location -->
+        <TextView
+            android:id="@+id/tvUseCurrentLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Use my current Location"
+            android:textColor="@color/red"
+            android:paddingTop="16dp"
+            android:drawableStart="@drawable/ic_location"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical" />
+
+        <!-- Search Location -->
+        <TextView
+            android:id="@+id/tvSearchLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Search Location"
+            android:textColor="@color/red"
+            android:paddingTop="8dp"
+            android:drawableStart="@drawable/ic_search"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical" />
+
+        <!-- Divider -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Or"
+            android:gravity="center"
+            android:paddingVertical="16dp" />
+
+        <!-- Saved Address List -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Saved Address"
+            android:textStyle="bold" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSavedAddresses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp" />
+
+        <!-- Add New Address -->
+        <TextView
+            android:id="@+id/tvAddNewAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add New Address"
+            android:textColor="@color/red"
+            android:paddingTop="16dp"
+            android:drawableStart="@drawable/ic_add"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical" />
+
+        <!-- Continue Button at the bottom -->
+        <Button
+            android:id="@+id/btnContinue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Continue"
+            android:layout_marginTop="16dp" />
+    </LinearLayout>
+</ScrollView>
