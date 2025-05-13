@@ -1,124 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:background="#FBEC95">  <!-- Light Blue Background -->
+    android:background="#FFFFFF"
+    tools:context=".auth.SplashFragment">
 
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/app_name">
-        <!-- App Name -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="F"
-            android:textSize="45sp"
-            android:layout_margin="2dp"
-            android:textColor="#384959"
-            android:fontFamily="@font/majormonodisplay"
-            android:layout_centerInParent="true"
-            android:textStyle="bold"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="A"
-            android:layout_margin="2dp"
-            android:textSize="45sp"
-            android:textColor="#384959"
-            android:layout_centerInParent="true"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="S"
-            android:layout_margin="2dp"
-            android:textSize="45sp"
-            android:textColor="#384959"
-            android:layout_centerInParent="true"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="T"
-            android:layout_margin="2dp"
-            android:textSize="45sp"
-            android:textColor="#384959"
-            android:layout_centerInParent="true"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="F"
-            android:layout_margin="2dp"
-            android:textSize="45sp"
-            android:textColor="#384959"
-            android:fontFamily="@font/majormonodisplay"
-            android:layout_centerInParent="true"
-            android:textStyle="bold"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="I"
-            android:layout_margin="2dp"
-            android:textSize="45sp"
-            android:textColor="#384959"
-            android:layout_centerInParent="true"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="T"
-            android:layout_margin="2dp"
-            android:textSize="45sp"
-            android:textColor="#384959"
-            android:layout_centerInParent="true"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="S"
-            android:layout_margin="2dp"
-            android:textSize="45sp"
-            android:textColor="#384959"
-            android:layout_centerInParent="true"
-            android:gravity="center" />
-    </LinearLayout>
-
-    <!-- Underline Effect -->
-    <View
-        android:id="@+id/underline"
-        android:layout_width="220dp"
-        android:layout_height="2dp"
-        android:background="#D4A017"
-        android:layout_below="@id/app_name"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp" />
-
-    <!-- Tagline -->
     <TextView
-        android:id="@+id/tagline"
+        android:id="@+id/fastfits_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Unleash your instant style"
-        android:textSize="14sp"
-        android:textColor="#000000"
-        android:fontFamily="serif"
-        android:layout_below="@id/underline"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"/>
+        android:fontFamily="@font/montserrat_extrabold_italic"
+        android:letterSpacing="0.1"
+        android:text="@string/fasfits"
+        android:textColor="#FFA500"
+        android:textSize="50sp"
+        android:textStyle="bold"
 
-</LinearLayout>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="250dp"
+        android:layout_height="2dp"
+        android:background="#FF7268"
+        app:layout_constraintTop_toBottomOf="@id/fastfits_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp" />
+
+    <TextView
+        android:id="@+id/style_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="13dp"
+        android:fontFamily="@font/marcellus_sc"
+        android:text="unleash your instant style"
+        android:textColor="#333333"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/line"
+        tools:ignore="SmallSp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

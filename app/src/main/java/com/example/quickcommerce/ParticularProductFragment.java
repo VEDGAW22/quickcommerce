@@ -1,6 +1,7 @@
 package com.example.quickcommerce;
 
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.denzcoskun.imageslider.constants.ScaleTypes;
 import com.denzcoskun.imageslider.models.SlideModel;
@@ -87,6 +89,20 @@ public class ParticularProductFragment extends Fragment {
                 new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         );
         binding.rvSizeOptions.setAdapter(sizeAdapter);
+
+        // Add horizontal spacing between size options
+        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen._8sdp);
+        binding.rvSizeOptions.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                                       @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                int position = parent.getChildAdapterPosition(view);
+                outRect.right = spacingInPixels;
+                if (position == 0) {
+                    outRect.left = spacingInPixels;
+                }
+            }
+        });
 
         // 5) Add to Bag button
         binding.btnAddToBag.setOnClickListener(v -> {

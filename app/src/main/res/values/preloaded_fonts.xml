@@ -4,6 +4,9 @@
         <item>@font/m_plus_1_medium</item>
         <item>@font/mada</item>
         <item>@font/mada_bold</item>
+        <item>@font/mada_medium</item>
         <item>@font/mada_semibold</item>
+        <item>@font/marcellus_sc</item>
+        <item>@font/roboto_slab_bold</item>
     </array>
 </resources>

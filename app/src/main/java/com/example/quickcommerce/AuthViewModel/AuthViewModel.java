@@ -1,149 +1,192 @@
 package com.example.quickcommerce.AuthViewModel;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.Activity;
-import android.app.Application;
-import android.content.Context;
 import android.util.Log;
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 import com.example.quickcommerce.models.Users;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
-import android.content.SharedPreferences;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.concurrent.TimeUnit;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 
-public class AuthViewModel extends AndroidViewModel {
-    private static final String TAG = "AuthViewModel";
-    private String _verificationId;
+public class AuthViewModel extends ViewModel {
     private FirebaseAuth mAuth;
-    private final SharedPreferences sharedPreferences;
-    private static final String PREF_NAME = "user_prefs";
-    private static final String KEY_IS_LOGGED_IN = "is_logged_in";
-    private PhoneAuthProvider.ForceResendingToken mResendToken;
+    private final MutableLiveData<Boolean> _otpSent = new MutableLiveData<>(false);
+    private final LiveData<Boolean> otpSent = _otpSent;
+    private final MutableLiveData<Boolean> _paymentStatus = new MutableLiveData<>(false);
+    private final LiveData<Boolean> paymentStatus = _paymentStatus;
+    private String _verificationId = "";
+    private final MutableLiveData<Boolean> _isSignedInSuccessfully = new MutableLiveData<>(false);
+    private final LiveData<Boolean> isSignedInSuccessfully = _isSignedInSuccessfully;
+    private final MutableLiveData<Boolean> _isCurrentUser = new MutableLiveData<>(false);
+    public final LiveData<Boolean> isCurrentUser = _isCurrentUser;
+    private final MutableLiveData<String> _userAddress = new MutableLiveData<>();
+    public final LiveData<String> userAddress = _userAddress;
 
-    private MutableLiveData<Boolean> _isCurrentUser = new MutableLiveData<>(false);
-
-    public MutableLiveData<Boolean> getUiState() {
-        return _isCurrentUser;
-    }
-
-    // ✅ FIX: Constructor must call super(application) and correctly initialize SharedPreferences
-    public AuthViewModel(@NonNull Application application) {
-        super(application);
+    public AuthViewModel() {
         mAuth = FirebaseAuth.getInstance();
-        sharedPreferences = application.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        checkLoginState();
+        checkIfAlreadyLoggedIn();
     }
 
-    private void checkLoginState() {
-        FirebaseUser user = mAuth.getCurrentUser();
-        boolean isLoggedIn = user != null || sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false);
-        _isCurrentUser.setValue(isLoggedIn);
+    public LiveData<Boolean> getOtpSent() {
+        return otpSent;
     }
 
-    public void saveLoginState(boolean isLoggedIn) {
-        sharedPreferences.edit().putBoolean(KEY_IS_LOGGED_IN, isLoggedIn).apply();
-        _isCurrentUser.setValue(isLoggedIn);
+    public LiveData<Boolean> getPaymentStatus() {
+        return paymentStatus;
     }
+
+    public void setPaymentStatus(boolean value) {
+        _paymentStatus.setValue(value);
+    }
+
+    public LiveData<Boolean> getIsSignedInSuccessfully() {
+        return isSignedInSuccessfully;
+    }
+
+    public LiveData<Boolean> getIsCurrentUser() {
+        return isCurrentUser;
+    }
+
+    public String getVerificationId() {
+        return _verificationId;
+    }
+
+    public void sendOtp(String number, Activity activity) {
+        PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            @Override
+            public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
+                Log.d(TAG, "Verification completed: " + credential);
+            }
+
+            @Override
+            public void onVerificationFailed(@NonNull FirebaseException e) {
+                Log.w(TAG, "Verification failed", e);
+                _otpSent.setValue(false);
+            }
+
+            @Override
+            public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken token) {
+                _verificationId = verificationId;
+                _otpSent.setValue(true);
+                Log.d(TAG, "OTP Sent Successfully: " + verificationId);
+            }
+        };
+        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(mAuth).setPhoneNumber(number).setTimeout(60L, TimeUnit.SECONDS).setActivity(activity).setCallbacks(mCallbacks).build();
+        PhoneAuthProvider.verifyPhoneNumber(options);
+    }
+
+    public void signInWithPhoneAuthCredential(PhoneAuthCredential credential, String phoneNumber, Activity activity, OtpVerificationCallback callback) {
+        mAuth.signInWithCredential(credential).addOnCompleteListener(activity, (Task<AuthResult> task) -> {
+            if (task.isSuccessful()) {
+                Log.d(TAG, "signInWithCredential: success");
+                FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                if (firebaseUser != null) {
+                    String userId = firebaseUser.getUid();
+                    com.google.firebase.messaging.FirebaseMessaging.getInstance().getToken().addOnCompleteListener(tokenTask -> {
+                        if (tokenTask.isSuccessful()) {
+                            String token = tokenTask.getResult();
+                            Users user = new Users(userId, phoneNumber, null,null);
+                            user.setUserToken(token); // ✅ Set FCM token here
+
+                            FirebaseDatabase.getInstance().getReference("AllUser").child("Users").child(userId).setValue(user).addOnCompleteListener(dbTask -> {
+                                if (dbTask.isSuccessful()) {
+                                    Log.d(TAG, "User saved in database successfully");
+                                    saveLoginState(true);
+                                    if (callback != null) {
+                                        callback.onVerificationSuccess();
+                                    }
+                                } else {
+                                    Log.e(TAG, "Failed to save user in database", dbTask.getException());
+                                    if (callback != null) {
+                                        callback.onVerificationFailed("Failed to save user in database.");
+                                    }
+                                }
+                            });
+                        } else {
+                            Log.e(TAG, "Failed to get FCM token", tokenTask.getException());
+                            if (callback != null) {
+                                callback.onVerificationFailed("Failed to get FCM token.");
+                            }
+                        }
+                    });
+                }
+            } else {
+                Log.e(TAG, "signInWithCredential: failure", task.getException());
+                if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                    Log.e(TAG, "Invalid verification code.");
+                }
+                if (callback != null) {
+                    callback.onVerificationFailed("Invalid OTP. Please try again.");
+                }
+            }
+        });
+    }
+
+
+    public void checkIfAlreadyLoggedIn() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        _isCurrentUser.setValue(currentUser != null);
+        if (currentUser != null) {
+            Log.d(TAG, "User is already logged in: " + currentUser.getUid());
+        } else {
+            Log.d(TAG, "No current user logged in.");
+        }
+    }
+
+    /*
+    public LiveData<String> getUserAddress(String userId) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("AllUser").child("Users").child(userId);
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    Users user = snapshot.getValue(Users.class);
+                    if (user != null && user.getAddress() != null) {
+                        _userAddress.setValue(user.getAddress());
+                    } else {
+                        _userAddress.setValue(null);
+                    }
+                } else {
+                    _userAddress.setValue(null);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Failed to fetch address", error.toException());
+                _userAddress.setValue(null);
+            }
+        });
+        return _userAddress;
+    }*/
 
     public interface OtpVerificationCallback {
         void onVerificationSuccess();
+
         void onVerificationFailed(String errorMessage);
     }
-
-    public void sendOTP(String userNumber, Activity activity, boolean isTestMode) {
-        PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks =
-                new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-                    @Override
-                    public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
-                        Log.d(TAG, "Verification auto-completed");
-                        signInWithPhoneAuthCredential(credential, userNumber, activity, null);
-                    }
-
-                    @Override
-                    public void onVerificationFailed(@NonNull FirebaseException e) {
-                        Log.e(TAG, "Verification failed: " + e.getMessage());
-                    }
-
-                    @Override
-                    public void onCodeSent(@NonNull String verificationId,
-                                           @NonNull PhoneAuthProvider.ForceResendingToken token) {
-                        _verificationId = verificationId;
-                        mResendToken = token;
-                        Log.d(TAG, "OTP sent successfully: " + verificationId);
-                    }
-                };
-
-        PhoneAuthOptions.Builder builder = PhoneAuthOptions.newBuilder(mAuth)
-                .setPhoneNumber("+91" + userNumber)
-                .setTimeout(60L, TimeUnit.SECONDS)
-                .setActivity(activity)
-                .setCallbacks(mCallbacks);
-
-        if (isTestMode) {
-            builder.setForceResendingToken(mResendToken); // Optional for test mode
-        }
-
-        PhoneAuthProvider.verifyPhoneNumber(builder.build());
-    }
-
-
-    public void verifyOtp(String otp, String userNumber, Activity activity, OtpVerificationCallback callback) {
-        if (_verificationId == null) {
-            Log.e(TAG, "Verification ID is null. Cannot verify OTP.");
-            if (callback != null)
-                callback.onVerificationFailed("Verification ID is missing. Request OTP again.");
-            return;
-        }
-
-        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(_verificationId, otp);
-        signInWithPhoneAuthCredential(credential, userNumber, activity, callback);
-    }
-
-    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential, String phoneNumber,
-                                               Activity activity, OtpVerificationCallback callback) {
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(activity, (Task<AuthResult> task) -> {
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "signInWithCredential: success");
-                        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                        if (firebaseUser != null) {
-                            String userId = firebaseUser.getUid();
-                            Users user = new Users(userId, phoneNumber, null);
-                            FirebaseDatabase.getInstance().getReference("AllUser")
-                                    .child("Users").child(userId)
-                                    .setValue(user)
-                                    .addOnCompleteListener(dbTask -> {
-                                        if (dbTask.isSuccessful()) {
-                                            Log.d(TAG, "User saved in database successfully");
-                                            saveLoginState(true); // ✅ Save login state on success
-                                            if (callback != null)
-                                                callback.onVerificationSuccess();
-                                        } else {
-                                            Log.e(TAG, "Failed to save user in database", dbTask.getException());
-                                            if (callback != null)
-                                                callback.onVerificationFailed("Failed to save user in database.");
-                                        }
-                                    });
-                        }
-                    } else {
-                        Log.e(TAG, "signInWithCredential: failure", task.getException());
-                        if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                            Log.e(TAG, "Invalid verification code.");
-                        }
-                        if (callback != null)
-                            callback.onVerificationFailed("Invalid OTP. Please try again.");
-                    }
-                });
+    private void saveLoginState(boolean isLoggedIn) {
+        // You can use shared preferences or any other mechanism to persist login state
+        // For example using shared preferences:        // SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        // sharedPreferences.edit().putBoolean(\"isLoggedIn\", isLoggedIn).apply();
     }
 }
 

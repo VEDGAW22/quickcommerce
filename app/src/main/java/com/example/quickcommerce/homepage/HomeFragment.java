@@ -3,6 +3,7 @@ package com.example.quickcommerce.homepage;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,12 @@ import com.example.quickcommerce.adapters.AdapterBanner;
 import com.example.quickcommerce.adapters.AdapterCategory;
 import com.example.quickcommerce.databinding.FragmentHomeBinding;
 import com.example.quickcommerce.models.Category;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +56,7 @@ public class HomeFragment extends Fragment {
         setupBottomNavigation();
         setupProfile();
         navigatingToSearchFragment();
+        fetchAndSetDefaultAddress();
         return binding.getRoot();
     }
 
@@ -103,7 +111,7 @@ public class HomeFragment extends Fragment {
             } else if (itemId == R.id.nav_cart) {
                 navController.navigate(R.id.cartFragment);
             } else if (itemId == R.id.nav_order) {
-                navController.navigate(R.id.myOrder);
+                navController.navigate(R.id.myOrderFragment);
             } else if (itemId == R.id.nav_help) {
                 navController.navigate(R.id.helpFragment);
             }
@@ -171,6 +179,41 @@ public class HomeFragment extends Fragment {
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(getResources().getColor(R.color.yellow));
+    }
+    private void fetchAndSetDefaultAddress() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference addressesRef = FirebaseDatabase.getInstance()
+                .getReference("AllUser")
+                .child("Users")
+                .child(userId)
+                .child("SavedAddresses");
+
+        addressesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot addressSnapshot : snapshot.getChildren()) {
+                        String addressLine = addressSnapshot.child("addressLine").getValue(String.class);
+                        Log.d("AddressFetch", "Fetched addressLine: " + addressLine);
+                        if (addressLine != null && !addressLine.isEmpty()) {
+                            binding.txtaddress.setText(addressLine);
+                            return; // ✅ Set the first available address
+                        }
+                    }
+                    Log.d("AddressFetch", "No valid addressLine found.");
+                    binding.txtaddress.setText("No address found");
+                } else {
+                    Log.d("AddressFetch", "No address data exists.");
+                    binding.txtaddress.setText("No address found");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("AddressFetch", "Database error: " + error.getMessage());
+                binding.txtaddress.setText("Error fetching address");
+            }
+        });
     }
 
 

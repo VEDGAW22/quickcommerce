@@ -121,11 +121,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/myOrder"
-        android:name="com.example.quickcommerce.myOrderFragment"
-        android:label="My Orders" />
-
-    <fragment
         android:id="@+id/helpFragment"
         android:name="com.example.quickcommerce.helpFragment"
         android:label="Help" />
@@ -137,11 +132,11 @@
             android:id="@+id/action_profileFragment_to_helpFragment"
             app:destination="@id/helpFragment" />
         <action
-            android:id="@+id/action_profileFragment_to_myOrder"
-            app:destination="@id/myOrder" />
-        <action
             android:id="@+id/action_profileFragment_to_addressFragment"
             app:destination="@id/addressFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_myOrderFragment"
+            app:destination="@id/myOrderFragment" />
     </fragment>
     <fragment
         android:id="@+id/addressFragment"
@@ -163,6 +158,9 @@
         <action
             android:id="@+id/action_paymentFragment_to_addressFragment"
             app:destination="@id/addressFragment" />
+        <action
+            android:id="@+id/action_paymentFragment_to_myOrderFragment"
+            app:destination="@id/myOrderFragment" />
     </fragment>
     <fragment
         android:id="@+id/productFragment"
@@ -233,6 +231,27 @@
         <action
             android:id="@+id/action_cartFragment_to_particularProductFragment"
             app:destination="@id/particularProductFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/myOrderFragment"
+        android:name="com.example.quickcommerce.MyOrderFragment"
+        android:label="fragment_my_order"
+        tools:layout="@layout/fragment_my_order" >
+        <action
+            android:id="@+id/action_myOrderFragment_to_orderDetailFragment"
+            app:destination="@id/orderDetailFragment" />
+        <action
+            android:id="@+id/action_myOrderFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/orderDetailFragment"
+        android:name="com.example.quickcommerce.OrderDetailFragment"
+        android:label="fragment_order_detail"
+        tools:layout="@layout/fragment_order_detail" >
+        <action
+            android:id="@+id/action_orderDetailFragment_to_myOrderFragment"
+            app:destination="@id/myOrderFragment" />
     </fragment>
 
 

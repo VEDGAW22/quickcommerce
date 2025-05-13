@@ -3,20 +3,22 @@ package com.example.quickcommerce.models;
 public class Users {
     private String userId;
     private String phone;
-    private String someOtherField; // Replace or remove as needed
+    private String someOtherField; // Optional field
+    private String userToken;
 
-    // No-argument constructor (required for Firebase serialization)
+    // No-argument constructor (required for Firebase)
     public Users() {
     }
 
-    // Constructor with fields
-    public Users(String userId, String phone, String someOtherField) {
+    // Constructor with all fields
+    public Users(String userId, String phone, String someOtherField, String userToken) {
         this.userId = userId;
         this.phone = phone;
         this.someOtherField = someOtherField;
+        this.userToken = userToken;
     }
 
-    // Getters and setters for all properties
+    // Getters and Setters
     public String getUserId() {
         return userId;
     }
@@ -40,5 +42,14 @@ public class Users {
     public void setSomeOtherField(String someOtherField) {
         this.someOtherField = someOtherField;
     }
+
+    public String getUserToken() {
+        return userToken;
+    }
+
+    public void setUserToken(String userToken) {
+        this.userToken = userToken;
+    }
 }
+
 

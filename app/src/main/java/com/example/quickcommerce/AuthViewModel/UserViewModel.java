@@ -211,5 +211,8 @@ public class UserViewModel extends ViewModel {
             }
         });
     }
+    public void logoutUser(){
+        FirebaseAuth.getInstance().signOut();
+    }
 
 }

@@ -202,7 +202,8 @@ public class addressFragment extends Fragment {
         dialog.show();
     }
 
-    private void saveAddressToFirebase(String fullAddress, String city, String state, String postalCode, String country) {
+    private void saveAddressToFirebase(String addressLine, String city, String state,
+                                       String postalCode, String country) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference addressesRef = FirebaseDatabase.getInstance()
                 .getReference("AllUser")
@@ -211,16 +212,29 @@ public class addressFragment extends Fragment {
                 .child("SavedAddresses");
 
         String addressId = UUID.randomUUID().toString();
-        AddressModel addressModel = new AddressModel(addressId, userId, "Default Name",
-                "0000000000", fullAddress, city, state, postalCode, false);
+
+        AddressModel addressModel = new AddressModel(
+                addressId,
+                userId,
+                "Default Name", // Optionally get from user profile
+                "0000000000",   // Optionally get from user profile
+                addressLine,
+                city,
+                state,
+                postalCode,
+                false,          // isDefault
+                country         // ✅ Include country here
+        );
 
         addressesRef.child(addressId).setValue(addressModel)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Address saved!", Toast.LENGTH_SHORT).show();
                     loadSavedAddresses();
                 })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to save address", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e ->
+                        Toast.makeText(getContext(), "Failed to save address", Toast.LENGTH_SHORT).show());
     }
+
 
     private void deleteAddressFromFirebase(String addressId) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();

@@ -34,6 +34,22 @@ public class Product implements Serializable {
         this.imageUrls = imageUrls;
     }
 
+    // New constructor to match simplified needs
+    public Product(String id, String title, long price, ArrayList<String> imageUrls) {
+        this.id = id;
+        this.title = title;
+        this.price = price;
+        this.imageUrls = imageUrls;
+
+        // Default values for other fields
+        this.description = "";
+        this.category = "";
+        this.gender = "";
+        this.stock = 0;
+        this.size = "";
+        this.type = "";
+    }
+
     // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -79,4 +95,3 @@ public class Product implements Serializable {
         return id != null ? id.hashCode() : 0;
     }
 }
-

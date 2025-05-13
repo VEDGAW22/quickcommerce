@@ -3,7 +3,16 @@
     <style name="Base.Theme.QuickCommerce" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/black</item>
     </style>
 
     <style name="Theme.QuickCommerce" parent="Base.Theme.QuickCommerce" />
+    <!-- Custom RatingBar Style -->
+    <style name="RatingBar" parent="Widget.AppCompat.RatingBar">
+        <!-- Customize the progress drawable -->
+        <item name="android:progressDrawable">@drawable/ratingbar_progress</item>
+        <!-- Customize the color of the stars -->
+        <item name="android:minHeight">48dp</item>
+        <item name="android:maxHeight">48dp</item>
+    </style>
 </resources>

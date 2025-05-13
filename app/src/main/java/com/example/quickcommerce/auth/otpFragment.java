@@ -1,115 +1,74 @@
 package com.example.quickcommerce.auth;
 
+import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.Navigation;
+
+
 import com.example.quickcommerce.AuthViewModel.AuthViewModel;
 import com.example.quickcommerce.R;
 import com.example.quickcommerce.activity.UsersMainActivity;
 import com.example.quickcommerce.databinding.FragmentOtpBinding;
-import com.example.quickcommerce.utils;
-import com.google.android.material.textfield.TextInputEditText;
+import com.example.quickcommerce.homepage.HomeFragment;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
+
+import java.util.Objects;
 
 public class otpFragment extends Fragment {
-    private FragmentOtpBinding binding;
-    private AuthViewModel authViewModel;
-    private String userNumber = "Unknown"; // Default value
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        changeBar();
-        getUserNumber(); // Retrieve user number from the bundle.
-    }
+    private FragmentOtpBinding binding;
+    private AuthViewModel viewModel;
+    private String userNumber;
+    private Dialog progressDialog;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentOtpBinding.inflate(inflater, container, false);
-        return binding.getRoot();
-    }
+        View view = binding.getRoot();
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
+
+        if (getArguments() != null) {
+            userNumber = getArguments().getString("number");
+            if (!userNumber.startsWith("+91")) {
+                userNumber = "+91" + userNumber;
+            }
+        }
+
+        progressDialog = new Dialog(requireContext());
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.setCancelable(false);
+        Objects.requireNonNull(progressDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        changeStatusBarColor();
         setUserNumber();
-        customizingEnteringOtp();
-        sendOtp();
-        onLoginClickButton();
-        onBackClick();
+        sendOTP();
+        setupOtpInputs();
+        setupLoginButton();
+        setupBackButton();
+
+        return view;
     }
-
-    private void onLoginClickButton() {
-        binding.btnLoginContinue.setOnClickListener(v -> {
-            utils.showDialog(requireContext(), "Signing you in...");
-
-            TextInputEditText[] otpFields = new TextInputEditText[]{
-                    binding.etOtp1, binding.etOtp2, binding.etOtp3,
-                    binding.etOtp4, binding.etOtp5, binding.etOtp6
-            };
-
-            // Build the OTP string from all input fields.
-            StringBuilder otpBuilder = new StringBuilder();
-            for (TextInputEditText field : otpFields) {
-                if (field.getText() != null) {
-                    otpBuilder.append(field.getText().toString());
-                }
-            }
-            String otp = otpBuilder.toString().trim();
-
-            if (otp.length() < otpFields.length) {
-                utils.showToast(requireContext(), "Please enter the complete OTP");
-                utils.hideDialog();
-            } else {
-                // Verify the OTP.
-                verifyOtp(otp);
-            }
-        });
-    }
-
-    private void verifyOtp(String otp) {
-        authViewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class);
-        authViewModel.verifyOtp(otp, userNumber, requireActivity(), new AuthViewModel.OtpVerificationCallback() {
-            @Override
-            public void onVerificationSuccess() {
-                utils.hideDialog();
-                utils.showToast(requireContext(), "Logged In Successfully");
-                // Navigate to the next screen if needed.
-                Intent intent = new Intent(requireActivity(), UsersMainActivity.class);
-                startActivity(intent);
-            }
-
-            @Override
-            public void onVerificationFailed(String errorMessage) {
-                utils.hideDialog();
-                utils.showToast(requireContext(), "Verification failed: " + errorMessage);
-            }
-        });
-    }
-
-    private void sendOtp() {
-        utils.showDialog(requireContext(), "Sending OTP...");
-        authViewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class);
-        authViewModel.sendOTP(userNumber, requireActivity(),false);
-        utils.hideDialog();
-        utils.showToast(requireContext(), "OTP Sent");
-    }
-
     private void getUserNumber() {
         Bundle bundle = getArguments();
         if (bundle != null && bundle.containsKey("number")) {
@@ -117,7 +76,6 @@ public class otpFragment extends Fragment {
         }
         Log.d("OTPFragment", "User Number Retrieved: " + userNumber);
     }
-
     private void setUserNumber() {
         if (binding != null) {
             binding.tvUserNumber.setText(userNumber);
@@ -127,73 +85,95 @@ public class otpFragment extends Fragment {
         }
     }
 
-    private void customizingEnteringOtp() {
-        TextInputEditText[] otpFields = new TextInputEditText[]{
+    private void changeStatusBarColor() {
+        Window window = requireActivity().getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.trans));
+    }
+
+    private void sendOTP() {
+        Toast.makeText(requireContext(), "Sending OTP...", Toast.LENGTH_SHORT).show();
+        viewModel.sendOtp(userNumber, requireActivity());
+    }
+
+    private void setupOtpInputs() {
+        EditText[] otpFields = {
                 binding.etOtp1, binding.etOtp2, binding.etOtp3,
                 binding.etOtp4, binding.etOtp5, binding.etOtp6
         };
 
-        for (TextInputEditText field : otpFields) {
-            field.setFilters(new InputFilter[]{new InputFilter.LengthFilter(1)}); // Limit to 1 char
-        }
-
         for (int i = 0; i < otpFields.length; i++) {
-            final int index = i;
+            int index = i;
 
-            otpFields[i].addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            otpFields[i].setOnKeyListener((v, keyCode, event) -> {
+                if (keyCode == KeyEvent.KEYCODE_DEL && otpFields[index].getText().length() == 0 && index > 0) {
+                    otpFields[index - 1].requestFocus();
+                    otpFields[index - 1].setText("");
+                    return true;
+                }
+                return false;
+            });
 
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
+            otpFields[i].addTextChangedListener(new android.text.TextWatcher() {
                 @Override
-                public void afterTextChanged(Editable s) {
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                @Override
+                public void afterTextChanged(android.text.Editable s) {
                     if (s.length() == 1 && index < otpFields.length - 1) {
                         otpFields[index + 1].requestFocus();
-                    } else if (s.length() == 0 && index > 0) {
-                        otpFields[index - 1].requestFocus();
-                    }
-
-                    // Change button color when all digits are filled
-                    boolean allFilled = true;
-                    for (TextInputEditText field : otpFields) {
-                        if (field.getText() == null || field.getText().toString().trim().isEmpty()) {
-                            allFilled = false;
-                            break;
-                        }
-                    }
-
-                    if (allFilled) {
-                        binding.btnLoginContinue.setBackgroundColor(getResources().getColor(R.color.yellow)); // Replace with your enabled color
-                        binding.btnLoginContinue.setEnabled(true);
-                    } else {
-                        binding.btnLoginContinue.setBackgroundColor(getResources().getColor(R.color.lightbluegray)); // Replace with your disabled color
-                        binding.btnLoginContinue.setEnabled(false);
                     }
                 }
             });
         }
     }
 
+    private void setupLoginButton() {
+        binding.btnLoginContinue.setOnClickListener(v -> {
+            StringBuilder otpBuilder = new StringBuilder();
+            otpBuilder.append(binding.etOtp1.getText().toString());
+            otpBuilder.append(binding.etOtp2.getText().toString());
+            otpBuilder.append(binding.etOtp3.getText().toString());
+            otpBuilder.append(binding.etOtp4.getText().toString());
+            otpBuilder.append(binding.etOtp5.getText().toString());
+            otpBuilder.append(binding.etOtp6.getText().toString());
 
-    private void onBackClick() {
-        binding.tb0tpFragment.setNavigationOnClickListener(v -> {
-            NavController navController = NavHostFragment.findNavController(this);
-            navController.navigate(R.id.action_otpFragment_to_signinFragment);
+            String otp = otpBuilder.toString();
+
+            if (otp.length() != 6) {
+                Toast.makeText(requireContext(), "Please enter a valid 6-digit OTP.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            progressDialog.show();
+
+            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(viewModel.getVerificationId(), otp);
+            viewModel.signInWithPhoneAuthCredential(credential, userNumber, requireActivity(), new AuthViewModel.OtpVerificationCallback() {
+                @Override
+                public void onVerificationSuccess() {
+                    progressDialog.dismiss();
+                    navigateToUserMainActivity();
+                }
+
+                @Override
+                public void onVerificationFailed(String errorMessage) {
+                    progressDialog.dismiss();
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                }
+            });
         });
     }
-    private void changeBar() {
-        Window window = requireActivity().getWindow();
 
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-
-        window.setStatusBarColor(getResources().getColor(R.color.yellow));
+    private void setupBackButton() {
+        binding.tb0tpFragment.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_otpFragment_to_signinFragment));
     }
 
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null; // Prevent memory leaks.
+    private void navigateToUserMainActivity() {
+        Intent intent = new Intent(requireContext(), UsersMainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        requireActivity().finish();
     }
 }

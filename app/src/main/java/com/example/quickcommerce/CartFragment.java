@@ -35,8 +35,11 @@ public class CartFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         cartItems = CartManager.getCartItems(requireContext());
-        cartAdapter = new AdapterCart(cartItems, this::onItemRemoved);
+        cartAdapter = new AdapterCart(this::onItemRemoved);
         binding.checkrecycle.setAdapter(cartAdapter);
+
+        // Submit the cart items to the adapter
+        cartAdapter.submitList(cartItems);
 
         updateBillDetails();
         updateCartUI();
@@ -96,6 +99,7 @@ public class CartFragment extends Fragment {
         }
     }
 }
+
 
 
 

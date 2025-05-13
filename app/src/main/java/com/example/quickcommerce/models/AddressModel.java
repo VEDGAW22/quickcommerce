@@ -1,7 +1,6 @@
 package com.example.quickcommerce.models;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 public class AddressModel implements Serializable {
 
@@ -13,16 +12,17 @@ public class AddressModel implements Serializable {
     private String city;
     private String state;
     private String pincode;
-    private boolean isDefault;
     private String country;
+    private boolean isDefault;
 
-    // Empty constructor (required for Firebase)
+    // Required empty constructor for Firebase
     public AddressModel() {}
 
     // Full constructor
-    // Constructor with fewer parameters
+    // Full constructor with all fields
     public AddressModel(String id, String userId, String fullName, String phone,
-                        String addressLine, String city, String state, String pincode, boolean isDefault) {
+                        String addressLine, String city, String state,
+                        String pincode, boolean isDefault, String country) {
         this.id = id;
         this.userId = userId;
         this.fullName = fullName;
@@ -32,9 +32,8 @@ public class AddressModel implements Serializable {
         this.state = state;
         this.pincode = pincode;
         this.isDefault = isDefault;
+        this.country = country;
     }
-
-
 
 
     // Getters and Setters
@@ -62,11 +61,14 @@ public class AddressModel implements Serializable {
     public String getPincode() { return pincode; }
     public void setPincode(String pincode) { this.pincode = pincode; }
 
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
+
     public boolean isDefault() { return isDefault; }
     public void setDefault(boolean aDefault) { isDefault = aDefault; }
 
-    // 👇 Add this method for full address (to fix getAddress() not found error)
+    // Full formatted address
     public String getAddress() {
-        return addressLine + ", " + city + ", " + state + " - " + pincode;
+        return addressLine + ", " + city + ", " + state + " - " + pincode + ", " + country;
     }
 }

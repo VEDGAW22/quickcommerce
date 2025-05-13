@@ -5,79 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="#FFFFFF"
+    tools:context=".auth.signinFragment">
 
-
-    <View
-        android:id="@+id/topLeftCorner"
-        android:layout_width="3dp"
-        android:layout_height="35dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:background="#D4A017"
-        android:orientation="vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <View
-        android:id="@+id/topHorizontal"
-        android:layout_width="35dp"
-        android:layout_height="3dp"
-        android:background="#D4A017"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp" />
-
-
-    <View
-        android:layout_width="3dp"
-        android:layout_height="100dp"
-        android:background="#D4A017"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-    <View
-        android:layout_width="3dp"
-        android:layout_height="100dp"
-        android:background="#D4A017"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp"
-        android:orientation="vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
-
-    <View
-        android:id="@+id/bottomLeftCorner"
-        android:layout_width="3dp"
-        android:layout_height="35dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="#D4A017"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <View
-        android:id="@+id/bottomRightHorizontal"
-        android:layout_width="35dp"
-        android:layout_height="3dp"
-        android:background="#D4A017"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp" />
 
     <TextView
         android:id="@+id/loginSignUpText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="332dp"
+        android:layout_marginTop="372dp"
         android:fontFamily="@font/m_plus_1_medium"
         android:text="@string/login_or_sign_up"
         android:textColor="#384959"
@@ -90,14 +26,14 @@
         android:id="@+id/etUserNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
+        android:layout_marginStart="@dimen/_40sdp"
         android:layout_marginTop="25dp"
-        android:layout_marginEnd="40dp"
-        android:textColorHint="@color/black"
+        android:layout_marginEnd="@dimen/_40sdp"
+        android:textColorHint="#B4B1B1"
         android:textColor="@color/black"
         android:background="@drawable/edittext_border"
         android:drawableStart="@drawable/baseline_call_24"
-        android:hint="@string/enter_a_phone_number"
+        android:hint="Enter a Phone Number"
         android:inputType="phone"
         android:padding="13dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -105,16 +41,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/loginSignUpText" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnContinue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
+        android:layout_marginStart="@dimen/_60sdp"
         android:layout_marginTop="18dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginEnd="@dimen/_60sdp"
         android:padding="@dimen/_11sdp"
         app:cornerRadius="8dp"
-        android:backgroundTint="#A2A2A2"
         android:text="Continue"
         android:textColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
@@ -127,14 +62,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
-        android:fontFamily="@font/majormonodisplay"
+        android:fontFamily="@font/montserrat_extrabold_italic"
         android:text="@string/fasfits"
-        android:textColor="#384959"
+        android:textColor="#FFA500"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-

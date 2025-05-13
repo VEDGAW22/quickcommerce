@@ -100,7 +100,7 @@ public class WomenFragment extends Fragment {
             } else if (itemId == R.id.nav_cart) {
                 navController.navigate(R.id.cartFragment);
             } else if (itemId == R.id.nav_order) {
-                navController.navigate(R.id.myOrder);
+                navController.navigate(R.id.myOrderFragment);
             } else if (itemId == R.id.nav_help) {
                 navController.navigate(R.id.helpFragment);
             }

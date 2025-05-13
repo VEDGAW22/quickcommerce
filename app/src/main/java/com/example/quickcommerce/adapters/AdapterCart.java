@@ -1,19 +1,19 @@
 package com.example.quickcommerce.adapters;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.quickcommerce.databinding.CheckoutItemLayoutBinding;
 import com.example.quickcommerce.models.Cart;
 
-import java.util.List;
-
-public class AdapterCart extends RecyclerView.Adapter<AdapterCart.CartViewHolder> {
-    private List<Cart> cartItems;
+public class AdapterCart extends ListAdapter<Cart, AdapterCart.CartViewHolder> {
     private OnRemoveClickListener removeClickListener;
 
     // Interface for handling item removal click
@@ -21,11 +21,27 @@ public class AdapterCart extends RecyclerView.Adapter<AdapterCart.CartViewHolder
         void onRemoveClick(int position);
     }
 
-    // Constructor to initialize cart items and remove click listener
-    public AdapterCart(List<Cart> cartItems, OnRemoveClickListener listener) {
-        this.cartItems = cartItems;
+    // Constructor to initialize the remove click listener
+    public AdapterCart(OnRemoveClickListener listener) {
+        super(DIFF_CALLBACK);  // Pass DiffUtil.ItemCallback
         this.removeClickListener = listener;
     }
+
+    // DiffUtil callback to compare items for efficient updates
+    private static final DiffUtil.ItemCallback<Cart> DIFF_CALLBACK = new DiffUtil.ItemCallback<Cart>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Cart oldItem, @NonNull Cart newItem) {
+            // Compare by unique identifier (e.g., product ID or cart item ID)
+            return oldItem.getProduct().getId().equals(newItem.getProduct().getId());
+        }
+
+        @SuppressLint("DiffUtilEquals")
+        @Override
+        public boolean areContentsTheSame(@NonNull Cart oldItem, @NonNull Cart newItem) {
+            // Compare the content of the items (product, size, etc.)
+            return oldItem.equals(newItem);
+        }
+    };
 
     @NonNull
     @Override
@@ -37,20 +53,15 @@ public class AdapterCart extends RecyclerView.Adapter<AdapterCart.CartViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
-        Cart item = cartItems.get(position);
+        Cart item = getItem(position); // Use getItem() to get the current item
         holder.bind(item);
 
         // Cross button click listener to remove item
         holder.binding.ivCross.setOnClickListener(v -> {
             if (removeClickListener != null) {
-                removeClickListener.onRemoveClick(holder.getAdapterPosition());
+                removeClickListener.onRemoveClick(position);  // Notify listener for item removal
             }
         });
-    }
-
-    @Override
-    public int getItemCount() {
-        return cartItems.size();
     }
 
     // ViewHolder for binding the cart item views
