@@ -151,32 +151,6 @@ public class AuthViewModel extends ViewModel {
         }
     }
 
-    /*
-    public LiveData<String> getUserAddress(String userId) {
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("AllUser").child("Users").child(userId);
-        userRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    Users user = snapshot.getValue(Users.class);
-                    if (user != null && user.getAddress() != null) {
-                        _userAddress.setValue(user.getAddress());
-                    } else {
-                        _userAddress.setValue(null);
-                    }
-                } else {
-                    _userAddress.setValue(null);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Failed to fetch address", error.toException());
-                _userAddress.setValue(null);
-            }
-        });
-        return _userAddress;
-    }*/
 
     public interface OtpVerificationCallback {
         void onVerificationSuccess();

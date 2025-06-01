@@ -191,6 +191,8 @@ public class HomeFragment extends Fragment {
         addressesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded() || binding == null) return;  // ✅ Prevent crash
+
                 if (snapshot.exists()) {
                     for (DataSnapshot addressSnapshot : snapshot.getChildren()) {
                         String addressLine = addressSnapshot.child("addressLine").getValue(String.class);
@@ -210,12 +212,12 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                if (!isAdded() || binding == null) return;  // ✅ Prevent crash
                 Log.e("AddressFetch", "Database error: " + error.getMessage());
                 binding.txtaddress.setText("Error fetching address");
             }
         });
     }
-
 
     @Override
     public void onDestroyView() {

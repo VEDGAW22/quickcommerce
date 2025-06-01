@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.quickcommerce.models.CartOrder;
 import com.example.quickcommerce.models.MyOrderDisplay;
 import com.example.quickcommerce.models.Product;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class OrderViewModel extends ViewModel {
     }
 
     public void fetchOrders() {
-        String currentUserId = "fyPBlLy3Apes3m2YsN0FbLHkxef2"; // Replace with actual user ID
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();; // Replace with actual user ID
 
         DatabaseReference ordersRef = FirebaseDatabase.getInstance()
                 .getReference("Admins")

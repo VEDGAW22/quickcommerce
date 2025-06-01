@@ -111,7 +111,7 @@ public class SearchFragment extends Fragment {
                     imm.hideSoftInputFromWindow(binding.searchEt.getWindowToken(), 0);
                 }
                 binding.searchEt.clearFocus();
-                return true;
+//                return true;
             }
             return false;
         });

@@ -113,7 +113,7 @@
                         android:textColorHint="#000000"
                         android:textSize="@dimen/_12ssp"
                         android:drawableTint="?attr/colorControlNormal"
-                        android:drawableStart="@drawable/icons8_search" />
+                        android:drawableStart="@drawable/ic_search" />
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
